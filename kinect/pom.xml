@@ -16,6 +16,13 @@
     <description>kinect</description>
     <properties>
         <java.version>21</java.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <modelmapper.version>3.2.0</modelmapper.version>
+        <openapi-generator-maven-plugin.version>7.5.0</openapi-generator-maven-plugin.version>
+        <springdoc-openapi-starter-webmvc-api.version>2.5.0</springdoc-openapi-starter-webmvc-api.version>
+        <sonar-maven-plugin.version>3.11.0.3922</sonar-maven-plugin.version>
+        <jacoco-maven-plugin.version>0.8.12</jacoco-maven-plugin.version>
     </properties>
     <dependencies>
         <dependency>
@@ -64,6 +71,18 @@
             <optional>true</optional>
         </dependency>
         <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-api</artifactId>
+            <version>${springdoc-openapi-starter-webmvc-api.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.modelmapper</groupId>
+            <artifactId>modelmapper</artifactId>
+            <version>${modelmapper.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
@@ -104,7 +123,105 @@
                     </excludes>
                 </configuration>
             </plugin>
+            <!-- https://mvnrepository.com/artifact/org.sonarsource.scanner.maven/sonar-maven-plugin -->
+            <plugin>
+                <groupId>org.sonarsource.scanner.maven</groupId>
+                <artifactId>sonar-maven-plugin</artifactId>
+                <version>${sonar-maven-plugin.version}</version>
+            </plugin>
+
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>${jacoco-maven-plugin.version}</version>
+            </plugin>
+
+            <plugin>
+                <!--
+                    Plugin that provides API-first development using openapi-generator-cli to
+                    generate Spring-MVC endpoint stubs at compile time from an OpenAPI definition file
+                -->
+                <groupId>org.openapitools</groupId>
+                <artifactId>openapi-generator-maven-plugin</artifactId>
+            </plugin>
+
         </plugins>
+        <pluginManagement>
+            <plugins>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>${jacoco-maven-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>pre-unit-tests</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <!-- Ensures that the code coverage report for unit tests is created after unit tests have been run -->
+                        <id>post-unit-test</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>pre-integration-tests</id>
+                        <goals>
+                            <goal>prepare-agent-integration</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <!-- Ensures that the code coverage report for integration tests is created after integration tests have been run -->
+                        <id>post-integration-tests</id>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>report-integration</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+                <plugin>
+                    <!--
+                        Plugin that provides API-first development using openapi-generator-cli to
+                        generate Spring-MVC endpoint stubs at compile time from an OpenAPI definition file
+                    -->
+                    <groupId>org.openapitools</groupId>
+                    <artifactId>openapi-generator-maven-plugin</artifactId>
+                    <version>${openapi-generator-maven-plugin.version}</version>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>generate</goal>
+                            </goals>
+                            <configuration>
+                                <inputSpec>
+                                    ${project.basedir}/src/main/resources/swagger/api.yml
+                                </inputSpec>
+                                <generatorName>spring</generatorName>
+                                <apiPackage>sn.ouznoreyni.kinect</apiPackage>
+                                <modelPackage>sn.ouznoreyni.kinect</modelPackage>
+                                <supportingFilesToGenerate>
+                                    ApiUtil.java
+                                </supportingFilesToGenerate>
+                                <configOptions>
+                                    <delegatePattern>true</delegatePattern>
+                                    <title>Kinect</title>
+                                    <useSpringBoot3>true</useSpringBoot3>
+                                </configOptions>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.sonarsource.scanner.maven</groupId>
+                    <artifactId>sonar-maven-plugin</artifactId>
+                    <version>${sonar-maven-plugin.version}</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
     </build>
 
 </project>
