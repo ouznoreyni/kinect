@@ -31,3 +31,7 @@ build/
 
 ### VS Code ###
 .vscode/
+
+.env.prod
+!**/src/main/**/*-prod.yml
+postgres-data

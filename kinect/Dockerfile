@@ -12,10 +12,14 @@ COPY ./src src/
 # Download project dependencies
 RUN ./mvnw dependency:go-offline -B -DskipTests
 
+# Get and rename the JAR file
+RUN ./mvnw package -DskipTests
+RUN mv /app/target/*.jar /app/target/app.jar
+
 FROM build AS test
 COPY src src
 # Set the Spring profile to test
-RUN ./mvnw test -Dspring.profiles.active=test
+#RUN ./mvnw test -Dspring.profiles.active=test
 CMD ["./mvnw", "test", "-Dspring.profiles.active=test"]
 
 FROM build AS dev
@@ -26,7 +30,7 @@ RUN --mount=type=cache,target=/root/.m2 ./mvnw package -DskipTests
 
 RUN adduser --disabled-password --gecos "" --shell "/bin/false" appuser
 USER appuser
-CMD ["java", "-Dspring.profiles.active=${SPRING_PROFILE}", "-jar", "/app/target/*.jar"]
+CMD ["java", "-Dspring.profiles.active=${SPRING_PROFILE}", "-jar", "/app/target/app.jar"]
 
 FROM eclipse-temurin:21-jre-jammy AS prod
 ARG SPRING_PROFILE=prod
